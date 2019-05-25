@@ -85,19 +85,6 @@ class FilesMethods:
 	@csrf_exempt
 	# def download(url, counter):
 	def download(url):
-		# filepath = "files/" + filename
-		# url = "http://i3.ytimg.com/vi/J---aiyznGQ/mqdefault.jpg"
-		# url = "https://file-examples.com/wp-content/uploads/2017/10/file-sample_150kB.pdf"
-		# url = "https://file-examples.com/wp-content/uploads/2017/10/file-example_PDF_500_kB.pdf"
-		# url = "https://file-examples.com/wp-content/uploads/2017/10/file-example_PDF_1MB.pdf"
-		# url = "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1920_18MG.mp4"
-		# url = "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1280_10MG.mp4"
-		# url = "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_640_3MG.mp4"
-		# url = "https://file-examples.com/wp-content/uploads/2017/10/file_example_JPG_100kB.jpg"
-		# url = "https://file-examples.com/wp-content/uploads/2017/10/file_example_JPG_500kB.jpg"
-		# url = "https://file-examples.com/wp-content/uploads/2017/10/file_example_JPG_2500kB.jpg"
-		# url  = "https://file-examples.com/wp-content/uploads/2017/10/file_example_GIF_500kB.gif"
-		# url = "https://file-examples.com/wp-content/uploads/2017/10/file_example_PNG_1MB.png"
 		filename = url[url.rfind("/")+1:]
 		print(filename)
 		downloadFile = urllib.request.urlopen(url)
@@ -112,40 +99,9 @@ class FilesMethods:
 		# # filename = ""
 		# # if content_dispotition != None;
 		# filename = ts + "url" + counter + ext
-		filepath = "../files/" + filename
+		filepath = "../../files/" + filename
 		# filepath = "../files/" + ts
 		datatowrite = downloadFile.read()
 		with open(filepath, 'wb') as f:  
 		    f.write(datatowrite)
 		return filename
-
-	@csrf_exempt
-	def send(request):
-		uniqueId = request.META['HTTP_X_ROUTING_KEY']
-		credentials = pika.PlainCredentials('1506725003', '697670')
-		connection = pika.BlockingConnection(pika.ConnectionParameters('152.118.148.103',5672,'1506725003', credentials))
-		channel = connection.channel()
-		exchange = '1506725003uas2018'
-		channel.exchange_declare(exchange=exchange, exchange_type='direct', passive=False, durable=False, auto_delete=False)
-
-		while(True) :
-			ts = datetime.datetime.today()
-			print(ts)
-			channel.basic_publish(exchange=exchange,
-								  routing_key='waktuServer',
-								  body=ts)
-			print(" [x] Sent " + ts)
-			time.sleep(1)
-		connection.close()
-		return JsonResponse({"status": "ok"})
-
-	@csrf_exempt
-	def compressedFile(filename, uniqueId, access_token):
-		url = "http://localhost:8300/compressed"
-		files = {'filename':filename, 'access_token': access_token}
-		header = {'X-ROUTING-KEY': uniqueId}
-		r = requests.post(url, data=json.dumps(files), headers=header)
-		return JsonResponse({
-			"status" : "ok",
-			"compressedFileName": "asdasd"
-		})
