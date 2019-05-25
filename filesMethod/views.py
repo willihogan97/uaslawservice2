@@ -58,12 +58,12 @@ class FilesMethods:
 			token = splitBody[2]
 			oauthValidate = FilesMethods.oauthValidate(token)
 			if oauthValidate:
-				compressedFileReq = FilesMethods.download(urlFile, counter)
-				channel.basic_publish(exchange=exchange,
+				filename = FilesMethods.download(urlFile)
+				channel_fanout.basic_publish(exchange=exchange_fanout,
 					routing_key='fanoutdataserver2',
-					body="urlberhasil;" + filepath)
+					body="urlberhasil;" + filename)
 			else:
-				channel.basic_publish(exchange=exchange,
+				channel_fanout.basic_publish(exchange=exchange_fanout,
 					routing_key='fanoutdataserver2',
 					body="validasi_gagal")
 
@@ -83,30 +83,41 @@ class FilesMethods:
 			return False
 
 	@csrf_exempt
-	def download(url, counter):
-	# def download(url):
+	# def download(url, counter):
+	def download(url):
 		# filepath = "files/" + filename
 		# url = "http://i3.ytimg.com/vi/J---aiyznGQ/mqdefault.jpg"
-		# url = "https://kaboompics.com/download/20325dd642cb3f812afc30aded8babb6/original"
-		# url = "https://images.pexels.com/photos/2317020/pexels-photo-2317020.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+		# url = "https://file-examples.com/wp-content/uploads/2017/10/file-sample_150kB.pdf"
+		# url = "https://file-examples.com/wp-content/uploads/2017/10/file-example_PDF_500_kB.pdf"
+		# url = "https://file-examples.com/wp-content/uploads/2017/10/file-example_PDF_1MB.pdf"
+		# url = "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1920_18MG.mp4"
+		# url = "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1280_10MG.mp4"
+		# url = "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_640_3MG.mp4"
+		# url = "https://file-examples.com/wp-content/uploads/2017/10/file_example_JPG_100kB.jpg"
+		# url = "https://file-examples.com/wp-content/uploads/2017/10/file_example_JPG_500kB.jpg"
+		# url = "https://file-examples.com/wp-content/uploads/2017/10/file_example_JPG_2500kB.jpg"
+		# url  = "https://file-examples.com/wp-content/uploads/2017/10/file_example_GIF_500kB.gif"
+		# url = "https://file-examples.com/wp-content/uploads/2017/10/file_example_PNG_1MB.png"
+		filename = url[url.rfind("/")+1:]
+		print(filename)
 		downloadFile = urllib.request.urlopen(url)
-		mime = mimetypes.guess_type(url, strict=True)
-		ext = ""
-		if mime != None:
-			ext = mimetypes.guess_extension(mime[0])
-			print(ext)
-		ts = datetime.datetime.today().strftime('%d %B %Y, %H:%M:%S')
-		# content_dispotition = downloadFile.getheader('Content-Dispotition')
-		# print(content_dispotition)
-		# filename = ""
-		# if content_dispotition != None;
-
-		filepath = "../files/" + ts + "url" + counter + ext
+		# mime = mimetypes.guess_type(url, strict=True)
+		# ext = ""
+		# if mime != None:
+		# 	ext = mimetypes.guess_extension(mime[0])
+		# 	print(ext)
+		# ts = datetime.datetime.today().strftime('%d %B %Y, %H:%M:%S')
+		# # content_dispotition = downloadFile.getheader('Content-Dispotition')
+		# # print(content_dispotition)
+		# # filename = ""
+		# # if content_dispotition != None;
+		# filename = ts + "url" + counter + ext
+		filepath = "../files/" + filename
 		# filepath = "../files/" + ts
 		datatowrite = downloadFile.read()
 		with open(filepath, 'wb') as f:  
 		    f.write(datatowrite)
-		return filepath
+		return filename
 
 	@csrf_exempt
 	def send(request):
